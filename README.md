@@ -20,15 +20,7 @@ docker-compose ps
 > **_Note_**
 > - Navigate to to `alertmanager.yml` file and fill the slack app API URL and channel name. You can check more details on getting URL [here](https://www.svix.com/resources/guides/how-to-get-slack-webhook-url/)
 
-
-## Testing and Monitoring
-Run each of the URLs below on a browser
-- __Webserver:__ Access the golang application at http://localhost:8080.
-- __Prometheus:__ Access Prometheus at http://localhost:9090.
-- __Alertmanager:__ Access Alertmanager at http://localhost:9093.
-- __Flask Application:__ Access Flask app metrics at http://localhost:8080/metrics.
-
-- Lastly, you can run `docker service ls` to list all the services and their statuses before testing in the browser.
+> - Lastly, you can run `docker service ls` to list all the services, ports and statuses before curling or testing on the browser.
 
 ## Clean Up
 - To remove the entire stack, run
