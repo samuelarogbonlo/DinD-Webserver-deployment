@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Threshold for CPU usage (e.g., 80%)
-CPU_THRESHOLD=40
+CPU_THRESHOLD=60
 
 # Desired scale
 SCALE_UP_REPLICAS=5
