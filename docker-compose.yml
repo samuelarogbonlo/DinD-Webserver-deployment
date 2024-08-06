@@ -1,0 +1,109 @@
+version: '3.7'
+
+services:
+  web-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: p2p-webserver-infra-web-service:latest
+    ports:
+      - "8080"
+    labels:
+      - "prometheus-job=web"
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 50M
+      restart_policy:
+        condition: always
+    networks:
+      - webnet
+      - monitoring
+    volumes:
+      - web-service-health:/mnt/health
+    healthcheck:
+      test: ["CMD", "cat", "/mnt/health/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 90s
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    networks:
+      - webnet
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - nginx-logs:/var/log/nginx
+
+  prometheus:
+    image: prom/prometheus:latest
+    user: root
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./config/rules.yml:/etc/prometheus/rules.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - monitoring
+    ports:
+      - "9090:9090"
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./config/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - monitoring
+
+  k6:
+    image: grafana/k6:latest
+    volumes:
+      - ./loadtest.js:/mnt/loadtest.js
+      - web-service-health:/mnt/health
+    networks:
+      - monitoring
+      - webnet
+    depends_on:
+      nginx:
+        condition: service_started
+    entrypoint: ["sh", "-c", "k6 run /mnt/loadtest.js && echo 'healthy' > /mnt/health/healthy || echo 'unhealthy' > /mnt/health/unhealthy"]
+    user: root
+    privileged: true
+
+  monitor-and-scale:
+    build:
+      context: .
+      dockerfile: scheduler.Dockerfile
+    image: p2p-webserver-infra-monitor-and-scale:v2
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - monitoring
+    depends_on:
+      - web-service
+    user: root
+
+volumes:
+  web-service-health:
+  nginx-logs:
+
+networks:
+  monitoring:
+    driver: bridge
+  webnet:
+    driver: bridge

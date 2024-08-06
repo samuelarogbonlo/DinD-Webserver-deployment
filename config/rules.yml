@@ -1,0 +1,20 @@
+groups:
+  - name: example
+    rules:
+      - alert: HighResponseTime
+        expr: http_request_duration_seconds_sum / http_request_duration_seconds_count > 0.5
+        for: 30s
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "The average response time for the web server has exceeded 0.5 seconds."
+
+      - alert: InstanceDown
+        expr: up{job="web"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Instance down"
+          description: "The web server instance is down."
