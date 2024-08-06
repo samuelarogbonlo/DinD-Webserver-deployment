@@ -11,31 +11,15 @@ This repository contains the infrastructure setup for a web server that includes
 
 ## Steps
 Following the steps below, the infratstructure should bootstrap on its own
--
 ```
 git clone https://github.com/samuelarogbonlo/p2p-webserver-deployment.git
-```
--
-```
-cd p2p-webserver-deployment
-```
--
-```
-cd config
-```
-- Navigate to to `alertmanager.yml` file and fill the slack app API URL and channel name. You can check more details on getting URL [here](https://www.svix.com/resources/guides/how-to-get-slack-webhook-url/)
--
-```
-cd ..
-```
-- 
-```
 make up
-```
-- Run the command below to check if the containers are running and to observe the autoscaling
-```
 docker-compose ps
 ```
+
+> **_Note_**
+> - Navigate to to `alertmanager.yml` file and fill the slack app API URL and channel name. You can check more details on getting URL [here](https://www.svix.com/resources/guides/how-to-get-slack-webhook-url/)
+
 
 ## Testing and Monitoring
 Run each of the URLs below on a browser
